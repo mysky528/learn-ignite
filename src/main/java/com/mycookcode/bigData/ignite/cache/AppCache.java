@@ -14,7 +14,7 @@ public class AppCache {
 
     public static void main( String[] args )
     {
-        Ignite ignite = Ignition.start("/Users/zhaolu/Code/java/apache-ignite-fabric-2.3.0-bin/config/example-cache.xml");
+        Ignite ignite = Ignition.start("example-cache.xml");
         //创建分布式缓存
 
         IgniteCache<Integer,String> cache = ignite.getOrCreateCache("myCache2");
