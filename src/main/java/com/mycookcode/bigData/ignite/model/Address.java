@@ -3,11 +3,12 @@ package com.mycookcode.bigData.ignite.model;
 import org.apache.ignite.binary.BinaryObjectException;
 import org.apache.ignite.binary.BinaryReader;
 import org.apache.ignite.binary.BinaryWriter;
+import org.apache.ignite.binary.Binarylizable;
 
 /**
  * Created by zhaolu on 2018/1/29.
  */
-public class Address {
+public class Address implements Binarylizable{
 
     /** Street. */
     private String street;
@@ -32,14 +33,14 @@ public class Address {
     }
 
     /** {@inheritDoc} */
-
+    @Override
     public void writeBinary(BinaryWriter writer) throws BinaryObjectException {
         writer.writeString("street", street);
         writer.writeInt("zip", zip);
     }
 
     /** {@inheritDoc} */
-
+    @Override
     public void readBinary(BinaryReader reader) throws BinaryObjectException {
         street = reader.readString("street");
         zip = reader.readInt("zip");
