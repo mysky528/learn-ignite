@@ -1,6 +1,7 @@
 package com.mycookcode.bigData.ignite.datagrid;
 
 import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.CacheAtomicityMode;
 import org.apache.ignite.cache.CacheMode;
@@ -26,7 +27,7 @@ public class DataRegionsExample {
 
     public static void main(String[] args)
     {
-        try (Ignite ignite = Ignition.start("example-date-regions.xml")){
+        try (Ignite ignite = Ignition.start("example-data-regions.xml")){
             System.out.println();
             System.out.println(">>> Data regions example started.");
 
@@ -40,6 +41,32 @@ public class DataRegionsExample {
             secondCacheCfg.setDataRegionName(REGION_40MB_EVICTION);
             secondCacheCfg.setCacheMode(CacheMode.REPLICATED); //复制模式
             secondCacheCfg.setAtomicityMode(CacheAtomicityMode.ATOMIC);
+
+            IgniteCache<Integer,Integer> firstCache = ignite.createCache(firstCacheCfg);
+            IgniteCache<Integer,Integer> secondCache = ignite.createCache(secondCacheCfg);
+
+            System.out.println(">>> Started two caches bound to '" + REGION_40MB_EVICTION + "' memory region.");
+
+            CacheConfiguration<Integer, Integer> thirdCacheCfg = new CacheConfiguration<>("thirdCache");
+            thirdCacheCfg.setDataRegionName(REGION_30MB_MEMORY_MAPPED_FILE);
+            IgniteCache<Integer,Integer> thirdCache = ignite.createCache(thirdCacheCfg);
+
+            System.out.println(">>> Started a cache bound to '" + REGION_30MB_MEMORY_MAPPED_FILE + "' memory region.");
+
+            CacheConfiguration<Integer, Integer> fourthCacheCfg = new CacheConfiguration<>("fourthCache");
+            IgniteCache<Integer, Integer> fourthCache = ignite.createCache(fourthCacheCfg);
+
+            System.out.println(">>> Started a cache bound to '" + REGION_DEFAULT + "' memory region.");
+
+            System.out.println(">>> Destroying caches...");
+            firstCache.destroy();
+            secondCache.destroy();
+            thirdCache.destroy();
+            fourthCache.destroy();
+
+
+
+
 
         }
     }
