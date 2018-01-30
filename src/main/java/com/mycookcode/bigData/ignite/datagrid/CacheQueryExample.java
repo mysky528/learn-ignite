@@ -6,10 +6,12 @@ import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.binary.BinaryObject;
+import org.apache.ignite.cache.CacheMode;
 import org.apache.ignite.cache.affinity.AffinityKey;
 import org.apache.ignite.cache.query.QueryCursor;
 import org.apache.ignite.cache.query.ScanQuery;
 import org.apache.ignite.cache.query.TextQuery;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.lang.IgniteBiPredicate;
 
 import javax.cache.Cache;
@@ -25,6 +27,41 @@ public class CacheQueryExample {
 
 
     private static final String PERSON_CACHE = CacheQueryExample.class.getSimpleName() + "Persons";
+
+
+    public static void main(String[] args)
+    {
+        try(Ignite ignite = Ignition.start("example-ignite.xml"))
+        {
+            System.out.println();
+            System.out.println(">>> Cache query example started.");
+            CacheConfiguration<Long, Organization> orgCacheCfg = new CacheConfiguration<>(ORG_CACHE);
+
+            orgCacheCfg.setCacheMode(CacheMode.PARTITIONED); // Default.
+            orgCacheCfg.setIndexedTypes(Long.class, Organization.class);
+
+            CacheConfiguration<AffinityKey<Long>, Person> personCacheCfg =
+                    new CacheConfiguration<>(PERSON_CACHE);
+
+            personCacheCfg.setCacheMode(CacheMode.PARTITIONED); // Default.
+            personCacheCfg.setIndexedTypes(AffinityKey.class, Person.class);
+
+            try{
+                //创建缓存
+                ignite.getOrCreateCache(orgCacheCfg);
+                ignite.getOrCreateCache(personCacheCfg);
+
+                initialize();
+                scanQuery();
+                textQuery();
+
+            }finally {
+                ignite.destroyCache(PERSON_CACHE);
+                ignite.destroyCache(ORG_CACHE);
+            }
+            print("Cache query example finished.");
+        }
+    }
 
 
     /**
