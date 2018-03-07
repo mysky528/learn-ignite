@@ -28,7 +28,7 @@ public class WordsSocketStreamerClient {
 
             while (true)
             {
-                try(InputStream in = WordsSocketStreamerClient.class.getResourceAsStream("alice-in-wonderland.txt");
+                try(InputStream in = WordsSocketStreamerClient.class.getResourceAsStream("../alice-in-wonderland.txt");
                     LineNumberReader rdr = new LineNumberReader(new InputStreamReader(in))){
                     for(String line = rdr.readLine();line != null;line = rdr.readLine())
                     {

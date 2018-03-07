@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        ">
+
+    <bean class="org.apache.ignite.configuration.IgniteConfiguration">
+
+        <property name="peerClassLoadingEnabled" value="true"/>
+
+        <!--使用特殊属性标记数据节点 这个属性是由com.mycookcode.bigData.ignite.servicegrid.microservices.filters.DataNodeFilter决定在哪部署缓存-->
+        <property name="userAttributes">
+            <map key-type="java.lang.String" value-type="java.lang.Boolean">
+                <entry key="data.node" value="true"/>
+            </map>
+        </property>
+
+        <!--在数据节点上部署缓存-->
+        <property name="cacheConfiguration">
+            <list>
+                <!--为车辆数据配置缓存-->
+                <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                    <property name="name" value="vehicles" />
+                    <property name="nodeFilter">
+                        <bean class="com.mycookcode.bigData.ignite.servicegrid.microservices.filters.DataNodeFilter"/>
+                    </property>
+                </bean>
+
+                <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                    <property name="name" value="maintenance"/>
+                    <property name="nodeFilter">
+                        <bean class="com.mycookcode.bigData.ignite.servicegrid.microservices.filters.DataNodeFilter"/>
+                    </property>
+
+                    <!--存储维护缓存信息-->
+                    <property name="cacheStoreFactory">
+                        <bean class="javax.cache.configuration.FactoryBuilder" factory-method="factoryOf">
+                            <constructor-arg value="com.mycookcode.bigData.ignite.servicegrid.microservices.cachestore.SimpleCacheStore"/>
+                        </bean>
+                    </property>
+
+                    <property name="storeKeepBinary" value="true"/>
+                    <property name="writeThrough" value="true"/>
+                    <property name="readThrough" value="true"/>
+
+                    <!-- 配置 SQL schema. -->
+                    <property name="queryEntities">
+                        <list>
+                            <bean class="org.apache.ignite.cache.QueryEntity">
+                                <!--设置被索引key的类型-->
+                                <property name="keyType" value="java.lang.Integer"/>
+                                <!--设置被索引值的类型-->
+                                <property name="valueType" value="com.mycookcode.bigData.ignite.servicegrid.microservices.pojo.Maintenance"/>
+                                <property name="fields">
+                                    <map>
+                                        <entry key="vehicleId" value="java.lang.Integer"/>
+                                    </map>
+                                </property>
+
+                                <property name="indexes">
+                                    <list>
+                                        <!-- Single field (aka. column) index -->
+                                        <bean class="org.apache.ignite.cache.QueryIndex">
+                                            <constructor-arg value="vehicleId"/>
+                                        </bean>
+                                    </list>
+                                </property>
+                            </bean>
+                        </list>
+                    </property>
+
+
+                </bean>
+
+            </list>
+        </property>
+
+
+        <property name="discoverySpi">
+            <bean class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">
+                <property name="ipFinder">
+                    <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder">
+                        <property name="addresses">
+                            <list>
+                                <!-- In distributed environment, replace with actual host IP address. -->
+                                <value>127.0.0.1:47500..47509</value>
+                            </list>
+                        </property>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+
+    </bean>
+
+
+
+</beans>

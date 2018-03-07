@@ -7,7 +7,6 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd
         ">
 
-
     <bean class="org.apache.ignite.configuration.IgniteConfiguration">
         <!--启用对等类加载-->
         <property name="peerClassLoadingEnabled" value="true" />
